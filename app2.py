@@ -4,9 +4,8 @@ from datetime import datetime
 from jinja2 import Template
 import base64
 import os
-from weasyprint import HTML
+import pdfkit
 from pathlib import Path
-HTML("resume.html").write_pdf("resume.pdf")
 
 with st.sidebar:
     st.session_state["api_key"] = st.text_input("place your api key here")
@@ -15,10 +14,6 @@ if st.session_state["api_key"]:
     client = openai.OpenAI(api_key=st.session_state["api_key"])
 else:
     st.error("No API key provided.")
-
-
-
-
 
 st.set_page_config(layout="wide")
 st.title("📄 Smart Resume Builder with PDF & Photo")
@@ -100,10 +95,9 @@ if st.button("📝 Generate PDF Resume"):
         )
 
         Path("resume.html").write_text(html)
-        HTML("resume.html").write_pdf("resume.pdf")
-
+        pdfkit.from_file("resume.html", "resume.pdf")
 
         with open("resume.pdf", "rb") as f:
             pdf_data = f.read()
         st.success("✅ Resume generated!")
-        st.download_button("📥 Download PDF", pdf_data, "resume.pdf")
+        st.download_button("📅 Download PDF", pdf_data, "resume.pdf")
