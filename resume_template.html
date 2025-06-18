@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            background-color: {{ color }};
+            margin: 0;
+        }
+        .left {
+            width: 30%;
+            background: #333;
+            color: white;
+            padding: 20px;
+        }
+        .right {
+            width: 70%;
+            padding: 20px;
+        }
+        img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h2, h3 {
+            margin-top: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="left">
+        {% if photo %}
+        <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo" />
+        {% endif %}
+        <h3>Skills</h3>
+        <ul>
+            {% for skill in skills %}
+            <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+        <h3>Languages</h3>
+        <ul>
+            {% for lang in languages %}
+            <li>{{ lang }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="right">
+        <h1>{{ name }}</h1>
+        <p>Email: {{ email }}</p>
+
+        <h2>Education</h2>
+        {% for edu in education %}
+        <p><strong>{{ edu.level }}:</strong> {{ edu.institution }} ({{ edu.start }} - {{ edu.end }})</p>
+        {% endfor %}
+
+        <h2>Experience</h2>
+        {% for job in experience %}
+        <p><strong>{{ job.title }}</strong> ({{ job.start }} - {{ job.end }})<br>
+        {{ job.desc }}</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
