@@ -69,6 +69,30 @@ for i in range(3):
                 "start": str(start),
                 "end": "Ongoing" if ongoing else str(end)
             })
+# --- AI-Powered Summary Section ---
+if st.button("🧠 Generate Summary"):
+    with st.spinner("Creating a smart summary from your resume..."):
+        # Combine all resume info into one prompt
+        resume_content = f"""
+        Name: {name}
+        Email: {email}
+        Skills: {', '.join(skill_list)}
+        Languages: {', '.join(lang_list)}
+        Education: {education}
+        Experience: {experience}
+        """
+
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "user", "content": f"Generate a short, professional 2-3 line summary for a resume based on this:\n\n{resume_content}"}
+            ],
+            temperature=0.7
+        )
+
+        summary = response.choices[0].message.content.strip()
+        st.success("Here's your AI-powered summary:")
+        st.text_area("📝 Summary", summary, height=150)
 
 # Generate resume
 if st.button("📝 Generate HTML Resume"):
