@@ -1,68 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            background-color: {{ color }};
-            margin: 0;
-        }
-        .left {
-            width: 30%;
-            background: #333;
-            color: white;
-            padding: 20px;
-        }
-        .right {
-            width: 70%;
-            padding: 20px;
-        }
-        img {
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        h2, h3 {
-            margin-top: 10px;
-        }
-        ul {
-            padding-left: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>{{ name }} - Resume</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: {{ color }};
+      margin: 40px;
+    }
+    .left {
+      float: left;
+      width: 30%;
+      padding-right: 20px;
+      box-sizing: border-box;
+    }
+    .right {
+      float: left;
+      width: 70%;
+      box-sizing: border-box;
+    }
+    .photo {
+      width: 100%;
+      max-width: 150px;
+      border-radius: 10px;
+    }
+    h1, h2, h3 {
+      margin-bottom: 5px;
+    }
+    ul {
+      margin-top: 0;
+    }
+    section {
+      margin-bottom: 20px;
+    }
+    .clear {
+      clear: both;
+    }
+  </style>
 </head>
 <body>
-    <div class="left">
-        {% if photo %}
-        <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo" />
-        {% endif %}
-        <h3>Skills</h3>
-        <ul>
-            {% for skill in skills %}
-            <li>{{ skill }}</li>
-            {% endfor %}
-        </ul>
-        <h3>Languages</h3>
-        <ul>
-            {% for lang in languages %}
-            <li>{{ lang }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="right">
-        <h1>{{ name }}</h1>
-        <p>Email: {{ email }}</p>
+  <div class="left">
+    {% if photo %}
+      <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo" class="photo" />
+    {% endif %}
 
-        <h2>Education</h2>
-        {% for edu in education %}
-        <p><strong>{{ edu.level }}:</strong> {{ edu.institution }} ({{ edu.start }} - {{ edu.end }})</p>
+    <section>
+      <h2>Languages</h2>
+      <ul>
+        {% for lang in languages %}
+          <li>{{ lang }}</li>
         {% endfor %}
+      </ul>
+    </section>
 
-        <h2>Experience</h2>
-        {% for job in experience %}
-        <p><strong>{{ job.title }}</strong> ({{ job.start }} - {{ job.end }})<br>
+    <section>
+      <h2>Skills</h2>
+      <ul>
+        {% for skill in skills %}
+          <li>{{ skill }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="right">
+    <h1>{{ name }}</h1>
+    <p>{{ email }}</p>
+
+    {% if summary %}
+    <section>
+      <h2>Professional Summary</h2>
+      <p>{{ summary }}</p>
+    </section>
+    {% endif %}
+
+    <section>
+      <h2>Education</h2>
+      {% for edu in education %}
+        <p><strong>{{ edu.level }}</strong> — {{ edu.institution }}<br>
+        {{ edu.start }} – {{ edu.end }}</p>
+      {% endfor %}
+    </section>
+
+    <section>
+      <h2>Work Experience</h2>
+      {% for job in experience %}
+        <p><strong>{{ job.title }}</strong><br>
+        {{ job.start }} – {{ job.end }}<br>
         {{ job.desc }}</p>
-        {% endfor %}
-    </div>
+      {% endfor %}
+    </section>
+  </div>
+
+  <div class="clear"></div>
 </body>
 </html>
