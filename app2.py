@@ -5,11 +5,10 @@ from jinja2 import Template
 import base64
 from pathlib import Path
 
-# Streamlit UI Setup
 st.set_page_config(layout="wide")
-st.title("📄 Smart Resume Builder (Streamlit HTML Version)")
+st.title("📄 Smart Resume Builder (HTML Download)")
 
-# API Key Input
+# API key
 with st.sidebar:
     st.session_state["api_key"] = st.text_input("place your api key here", type="password")
 
@@ -19,21 +18,20 @@ if not st.session_state["api_key"]:
 
 client = openai.OpenAI(api_key=st.session_state["api_key"])
 
-# Upload Profile Image
-photo = st.file_uploader("Upload a profile photo (JPG or PNG)", type=["jpg", "jpeg", "png"])
+# Upload profile photo
+photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg", "png"])
 
-# Sidebar Inputs
+# Sidebar inputs
 with st.sidebar:
     st.header("🧠 Skills & 🌐 Languages")
     skills = st.text_area("Skills (comma-separated)")
     languages = st.text_area("Languages (comma-separated)")
     skill_list = [s.strip() for s in skills.split(",") if s.strip()]
     lang_list = [l.strip() for l in languages.split(",") if l.strip()]
-    st.markdown("🎨 Theme Color")
     theme_color = st.color_picker("Pick a theme color", "#f0f0f0")
 
-# Personal Details
-st.subheader("👤 Personal Details")
+# Personal info
+st.subheader("👤 Personal Info")
 name = st.text_input("Full Name")
 email = st.text_input("Email")
 
@@ -54,7 +52,7 @@ for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
                 "end": "Ongoing" if ongoing else str(end)
             })
 
-# Work Experience
+# Work experience
 st.subheader("💼 Work Experience")
 experience = []
 for i in range(3):
@@ -72,7 +70,7 @@ for i in range(3):
                 "end": "Ongoing" if ongoing else str(end)
             })
 
-# Resume Generation
+# Generate resume
 if st.button("📝 Generate HTML Resume"):
     with st.spinner("Generating..."):
 
@@ -81,7 +79,7 @@ if st.button("📝 Generate HTML Resume"):
             img_bytes = photo.read()
             img_base64 = base64.b64encode(img_bytes).decode()
 
-        # Load template
+        # Load Jinja2 template
         template_path = Path("resume_template.html")
         html_template = Template(template_path.read_text())
 
@@ -96,9 +94,5 @@ if st.button("📝 Generate HTML Resume"):
             photo=img_base64
         )
 
-        # Save HTML
-        Path("resume.html").write_text(html)
-
-        # Show download
         st.success("✅ Resume generated!")
-        st.download_button("📥 Download HTML Resume", html, "resume.html")
+        st.download_button("📥 Download HTML Resume", html, "resume.html", mime="text/html")
