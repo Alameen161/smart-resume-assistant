@@ -1,130 +1,91 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      display: flex;
-      width: 210mm;
-      height: 297mm;
-      margin: auto;
-      border: 1px solid #ccc;
-    }
-    .left {
-      background-color: {{ primary_color }};
-      color: white;
-      width: 30%;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .left img {
-      border-radius: 12px;
-      width: 120px;
-      height: 150px;
-      object-fit: cover;
-      margin-bottom: 20px;
-      background-color: {{ secondary_color }};
-      padding: 6px;
-    }
-    .contact, .skills, .languages, .summary {
-      margin-top: 20px;
-      text-align: center;
-    }
-    .contact h4, .skills h4, .languages h4, .summary h4 {
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      border-bottom: 1px solid white;
-      padding-bottom: 4px;
-    }
-    .right {
-      width: 70%;
-      padding: 30px;
-      background-color: #fff;
-    }
-    .right h1 {
-      color: {{ primary_color }};
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
-    .section {
-      margin-bottom: 30px;
-    }
-    .section h2 {
-      border-bottom: 1px solid #aaa;
-      padding-bottom: 6px;
-      color: #333;
-    }
-    .entry {
-      margin-top: 10px;
-    }
-    .entry strong {
-      font-size: 14px;
-    }
-    .entry p {
-      margin: 5px 0 10px 0;
-      font-size: 12px;
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>{{ name }} - Resume</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            width: 210mm;
+            height: 297mm;
+        }
+        .left {
+            background-color: {{ color }};
+            width: 30%;
+            padding: 20px;
+            color: white;
+        }
+        .photo-section {
+            background-color: {{ secondary }};
+            text-align: center;
+            padding: 10px;
+        }
+        .photo-section img {
+            width: 100px;
+            border-radius: 8px;
+        }
+        .right {
+            width: 70%;
+            padding: 30px;
+        }
+        h1 {
+            color: {{ color }};
+            margin-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 4px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .contact p, .skill-item, .lang-item {
+            margin: 4px 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
     <div class="left">
-      {% if photo %}<img src="data:image/png;base64,{{ photo }}" alt="Profile Photo"/>{% endif %}
-      <div class="contact">
-        <h4>Contact</h4>
-        <p>{{ city }}, {{ country }}</p>
-        <p>{{ phone }}</p>
-        <p>{{ email }}</p>
-      </div>
-      <div class="skills">
-        <h4>Skills</h4>
-        <ul>{% for skill in skills %}<li>{{ skill }}</li>{% endfor %}</ul>
-      </div>
-      <div class="languages">
-        <h4>Languages</h4>
-        <ul>{% for lang in languages %}<li>{{ lang }}</li>{% endfor %}</ul>
-      </div>
-      {% if summary %}
-      <div class="summary">
-        <h4>Summary</h4>
-        <p>{{ summary }}</p>
-      </div>
-      {% endif %}
+        <div class="photo-section">
+            {% if photo %}
+            <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo">
+            {% endif %}
+        </div>
+        <div class="contact">
+            <p>{{ city }}, {{ country }}</p>
+            <p>{{ phone }}</p>
+            <p>{{ email }}</p>
+        </div>
+        <div class="section">
+            <h3>Skills</h3>
+            {% for s in skills %}
+            <p class="skill-item">{{ s }}</p>
+            {% endfor %}
+        </div>
+        <div class="section">
+            <h3>Languages</h3>
+            {% for lang in languages %}
+            <p class="lang-item">{{ lang.language }} - {{ lang.level }}</p>
+            {% endfor %}
+        </div>
     </div>
     <div class="right">
-      <h1>{{ name }}</h1>
-      <div class="section">
-        <h2>Education</h2>
-        {% for edu in education %}
-          <div class="entry">
-            <strong>{{ edu.level }}</strong> — {{ edu.institution }}<br/>
-            <small>{{ edu.start }} – {{ edu.end }}</small>
-          </div>
-        {% endfor %}
-      </div>
-      <div class="section">
-        <h2>Experience</h2>
-        {% for job in experience %}
-          <div class="entry">
-            <strong>{{ job.title }}</strong><br/>
-            <small>{{ job.start }} – {{ job.end }}</small>
-            <p>{{ job.desc }}</p>
-          </div>
-        {% endfor %}
-      </div>
+        <h1>{{ name }}</h1>
+        <div class="section">
+            <h2>Education</h2>
+            {% for edu in education %}
+                <p><strong>{{ edu.level }}</strong> — {{ edu.institution }}<br>{{ edu.start }} – {{ edu.end }}</p>
+            {% endfor %}
+        </div>
+        <div class="section">
+            <h2>Experience</h2>
+            {% for job in experience %}
+                <p><strong>{{ job.title }}</strong><br>{{ job.start }} – {{ job.end }}<br>{{ job.desc }}</p>
+            {% endfor %}
+        </div>
     </div>
-  </div>
 </body>
 </html>
