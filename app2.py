@@ -5,46 +5,64 @@ from jinja2 import Template
 import base64
 from pathlib import Path
 
+# --- CONFIG ---
 st.set_page_config(layout="wide")
-st.title("📄 Smart Resume Builder with Summary & Suggestions")
 
-# API Key input
+# --- INPUT API KEY ---
 with st.sidebar:
-    st.session_state["api_key"] = st.text_input("place your api key here", type="password")
+    st.session_state["api_key"] = st.text_input("Place your API key here", type="password")
 
-# Ensure key provided
-if not st.session_state["api_key"]:
-    st.error("No API key provided!!")
-    st.stop()
+if st.session_state["api_key"]:
+    client = openai.OpenAI(api_key=st.session_state["api_key"])
+else:
+    st.error("No API key provided.")
 
-client = openai.OpenAI(api_key=st.session_state["api_key"])
-
-# Upload Photo
-photo = st.file_uploader("Upload a profile photo (JPG or PNG)", type=["jpg", "jpeg", "png"])
-
-# Sidebar inputs
-with st.sidebar:
-    st.header("🧠 Skills & 🌐 Languages")
-    skills = st.text_area("Skills (comma-separated)")
-    languages = st.text_area("Languages (comma-separated)")
-    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
-    lang_list = [l.strip() for l in languages.split(",") if l.strip()]
-    theme_color = st.color_picker("Pick a theme color", "#f0f0f0")
-
-# Personal Info
-st.subheader("👤 Personal Details")
+# --- PROFILE INFO ---
+st.title("📄 Smart Resume Builder")
+photo = st.file_uploader("Upload your photo", type=["jpg", "jpeg", "png"])
 name = st.text_input("Full Name")
 email = st.text_input("Email")
+phone = st.text_input("Phone Number")
+city = st.text_input("City")
+country = st.text_input("Country")
 
-# Education
-st.subheader("🎓 Education")
+# --- SIDEBAR ---
+with st.sidebar:
+    st.header("🎯 Skills")
+    skills = st.text_area("Skills (comma-separated)")
+    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
+
+    st.header("🌐 Languages")
+    language_levels = ["A1 (Beginner)", "A2 (Elementary)", "B1 (Intermediate)", "B2 (Upper-Intermediate)", "C1 (Advanced)", "C2 (Proficient)"]
+    lang_list = []
+    if "lang_count" not in st.session_state:
+        st.session_state.lang_count = 1
+
+    for i in range(st.session_state.lang_count):
+        cols = st.columns([2, 2])
+        with cols[0]:
+            lang = st.text_input(f"Language #{i+1}", key=f"lang{i}")
+        with cols[1]:
+            level = st.selectbox(f"Level #{i+1}", language_levels, key=f"level{i}")
+        if lang:
+            lang_list.append({"language": lang, "level": level})
+
+    if st.session_state.lang_count < 10:
+        if st.button("➕ Add Language"):
+            st.session_state.lang_count += 1
+
+    theme_color = st.color_picker("🎨 Pick a theme color", "#f94144")
+    secondary_color = st.color_picker("🟪 Secondary color (photo background)", "#f3722c")
+
+# --- EDUCATION ---
+st.header("🎓 Education")
 education = []
 for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
-    with st.expander(f"{level}"):
-        school = st.text_input(f"{level} - Institution", key=level+"school")
-        start = st.date_input(f"{level} - Start Date", key=level+"start")
-        ongoing = st.checkbox(f"{level} - Ongoing", key=level+"ongoing")
-        end = None if ongoing else st.date_input(f"{level} - End Date", key=level+"end")
+    with st.expander(level):
+        school = st.text_input(f"{level} - Institution")
+        start = st.date_input(f"{level} - Start Date")
+        ongoing = st.checkbox(f"{level} - Ongoing")
+        end = None if ongoing else st.date_input(f"{level} - End Date")
         if school:
             education.append({
                 "level": level,
@@ -53,13 +71,13 @@ for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
                 "end": "Ongoing" if ongoing else str(end)
             })
 
-# Experience
-st.subheader("💼 Work Experience")
+# --- EXPERIENCE ---
+st.header("💼 Work Experience")
 experience = []
 for i in range(3):
     with st.expander(f"Job {i+1}"):
-        job = st.text_input(f"Job {i+1} - Title/Role", key=f"job{i}")
-        desc = st.text_area(f"Job {i+1} - Description", key=f"desc{i}")
+        job = st.text_input(f"Job {i+1} - Title/Role")
+        desc = st.text_area(f"Job {i+1} - Description")
         start = st.date_input(f"Job {i+1} - Start Date", key=f"jobstart{i}")
         ongoing = st.checkbox(f"Job {i+1} - Ongoing", key=f"ongoing{i}")
         end = None if ongoing else st.date_input(f"Job {i+1} - End Date", key=f"jobend{i}")
@@ -71,72 +89,33 @@ for i in range(3):
                 "end": "Ongoing" if ongoing else str(end)
             })
 
-# === Summary Section ===
-st.subheader("📝 Professional Summary")
-
-if "summary_text" not in st.session_state:
-    st.session_state.summary_text = ""
-
-manual_summary = st.text_area("✍️ Manually write/edit your summary:", value=st.session_state.summary_text, height=150)
-
-if st.button("🔁 Generate Summary with AI"):
-    resume_data = f"""
-    Name: {name}\nEmail: {email}\nSkills: {skills}\nLanguages: {languages}\nEducation: {education}\nExperience: {experience}
-    """
-    prompt = f"Based on the resume below, generate a compelling 3-4 sentence professional summary:\n{resume_data}"
-    with st.spinner("Generating summary..."):
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7
-        )
-        ai_summary = response.choices[0].message.content
-        st.session_state.summary_text = ai_summary
-        manual_summary = ai_summary
-        st.success("Summary generated. You can now edit it manually if needed.")
-
-# Use updated text if user edited manually
-st.session_state.summary_text = manual_summary
-
-# Confirm inclusion in resume
-include_summary = st.checkbox("✅ Include summary in resume")
-
-# Suggestions (only visible in app)
-st.subheader("💡 AI Suggestions (only shown here)")
-if st.button("📌 Get AI Suggestions"):
-    resume_data = f"Skills: {skills}\nLanguages: {languages}\nEducation: {education}\nExperience: {experience}"
-    prompt = f"Review the following resume data and suggest 3 improvements:\n{resume_data}"
-    with st.spinner("Analyzing resume..."):
-        suggestion_response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5
-        )
-        suggestions = suggestion_response.choices[0].message.content
-        st.info(suggestions)
-
-# === Generate Final HTML Resume ===
+# --- HTML GENERATION BUTTON ---
 if st.button("💾 Generate HTML Resume"):
-    img_base64 = ""
-    if photo:
-        img_bytes = photo.read()
-        img_base64 = base64.b64encode(img_bytes).decode()
+    with st.spinner("Creating your resume..."):
+        img_base64 = ""
+        if photo:
+            img_bytes = photo.read()
+            img_base64 = base64.b64encode(img_bytes).decode()
 
-    template_path = Path("resume_template.html")
-    html_template = Template(template_path.read_text())
+        template_path = Path("resume_template.html")
+        html_template = Template(template_path.read_text())
 
-    html = html_template.render(
-        name=name,
-        email=email,
-        skills=skill_list,
-        languages=lang_list,
-        education=education,
-        experience=experience,
-        color=theme_color,
-        photo=img_base64,
-        summary=st.session_state.summary_text if include_summary else None
-    )
+        html = html_template.render(
+            name=name,
+            email=email,
+            phone=phone,
+            city=city,
+            country=country,
+            photo=img_base64,
+            skills=skill_list,
+            languages=lang_list,
+            education=education,
+            experience=experience,
+            color=theme_color,
+            secondary=secondary_color
+        )
 
-    Path("resume.html").write_text(html)
-    st.success("✅ HTML Resume Generated!")
-    st.download_button("📄 Download HTML", data=html, file_name="resume.html")
+        with open("resume.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        st.success("✅ Resume generated!")
+        st.download_button("📥 Download HTML Resume", html, "resume.html")
