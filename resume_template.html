@@ -36,6 +36,7 @@
     .right {
       width: 67%;
       padding: 40px;
+      overflow-y: auto;
     }
     h1 {
       margin-top: 0;
@@ -123,6 +124,17 @@
         {% for cert in certificates %}
           <p><strong>{{ cert.title }}</strong> ({{ cert.date }})</p>
         {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if improvement_suggestions %}
+      <section style="border: 2px dashed #ccc; padding: 10px; margin-top: 20px;">
+        <h2 style="color: red;">⚠️ AI Suggestions (Only visible in app)</h2>
+        <ul>
+          {% for tip in improvement_suggestions %}
+            <li>{{ tip }}</li>
+          {% endfor %}
+        </ul>
       </section>
       {% endif %}
     </div>
