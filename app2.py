@@ -24,8 +24,8 @@ photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg"
 # Sidebar inputs
 with st.sidebar:
     st.header("🧠 Skills & 🌐 Languages")
-    skills = st.text_area("Skills (comma-separated)")
-    skill_list = [s.strip() for s in skills.split(",") if s.strip()]
+    skills = st.text_area("Enter one skill per line")
+    skill_list = [s.strip() for s in skills.split("\n") if s.strip()]
 
     language_levels = ["A1 (Beginner)", "A2 (Elementary)", "B1 (Intermediate)", "B2 (Upper-Intermediate)", "C1 (Advanced)", "C2 (Proficient)"]
     lang_list = []
@@ -75,8 +75,11 @@ for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
 
 # Work experience
 st.subheader("💼 Work Experience")
+if "job_count" not in st.session_state:
+    st.session_state.job_count = 1
+
 experience = []
-for i in range(3):
+for i in range(st.session_state.job_count):
     with st.expander(f"Job {i+1}"):
         job = st.text_input(f"Job {i+1} - Title/Role")
         desc = st.text_area(f"Job {i+1} - Description")
@@ -91,6 +94,48 @@ for i in range(3):
                 "end": "Ongoing" if ongoing else str(end)
             })
 
+col1, col2 = st.columns([1, 1])
+with col1:
+    if st.button("➕ Add Job"):
+        st.session_state.job_count += 1
+with col2:
+    if st.session_state.job_count > 1 and st.button("➖ Remove Last Job"):
+        st.session_state.job_count -= 1
+
+# Internships
+st.subheader("🧪 Internships (Optional)")
+internships = []
+for i in range(2):
+    with st.expander(f"Internship {i+1}"):
+        title = st.text_input(f"Internship {i+1} - Title")
+        location = st.text_input(f"Internship {i+1} - Location")
+        start = st.date_input(f"Internship {i+1} - Start Date", key=f"internstart{i}")
+        end = st.date_input(f"Internship {i+1} - End Date", key=f"internend{i}")
+        if title:
+            internships.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+
+# Training
+st.subheader("🎯 Training (Optional)")
+training = []
+for i in range(2):
+    with st.expander(f"Training {i+1}"):
+        title = st.text_input(f"Training {i+1} - Title")
+        location = st.text_input(f"Training {i+1} - Location")
+        start = st.date_input(f"Training {i+1} - Start Date", key=f"trainstart{i}")
+        end = st.date_input(f"Training {i+1} - End Date", key=f"trainend{i}")
+        if title:
+            training.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+
+# Certificates
+st.subheader("📜 Certificates (Optional)")
+certificates = []
+for i in range(3):
+    with st.expander(f"Certificate {i+1}"):
+        title = st.text_input(f"Certificate {i+1} - Title")
+        date = st.date_input(f"Certificate {i+1} - Date", key=f"certdate{i}")
+        if title:
+            certificates.append({"title": title, "date": str(date)})
+
 # AI-generated Summary
 st.subheader("🧠 Professional Summary")
 summary = st.session_state.get("summary", "")
@@ -102,10 +147,13 @@ if st.button("✍️ Generate Summary with AI"):
         Email: {email}
         Phone: {phone}
         Location: {city}, {country}
-        Skills: {', '.join(skill_list)}
+        Skills: {skill_list}
         Languages: {lang_list}
         Education: {education}
         Experience: {experience}
+        Internships: {internships}
+        Training: {training}
+        Certificates: {certificates}
         """
         response = client.chat.completions.create(
             model="gpt-4",
@@ -143,6 +191,9 @@ if st.button("📝 Generate HTML Resume"):
             languages=lang_list,
             education=education,
             experience=experience,
+            internships=internships,
+            training=training,
+            certificates=certificates,
             color=theme_color,
             secondary=secondary_color,
             summary=st.session_state.get("final_summary", "")
