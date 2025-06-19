@@ -102,39 +102,55 @@ with col2:
     if st.session_state.job_count > 1 and st.button("➖ Remove Last Job"):
         st.session_state.job_count -= 1
 
-# Internships
-st.subheader("🧪 Internships (Optional)")
+# --- Optional Internships ---
+st.subheader("🎓 Internships (optional)")
 internships = []
-for i in range(2):
-    with st.expander(f"Internship {i+1}"):
-        title = st.text_input(f"Internship {i+1} - Title")
-        location = st.text_input(f"Internship {i+1} - Location")
-        start = st.date_input(f"Internship {i+1} - Start Date", key=f"internstart{i}")
-        end = st.date_input(f"Internship {i+1} - End Date", key=f"internend{i}")
-        if title:
-            internships.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+num_interns = st.number_input("How many internships?", min_value=0, max_value=5, value=0, step=1)
+for i in range(num_interns):
+    with st.expander(f"Internship #{i+1}"):
+        title = st.text_input(f"Internship #{i+1} - Title", key=f"int_title{i}")
+        location = st.text_input(f"Internship #{i+1} - Location", key=f"int_loc{i}")
+        start = st.date_input(f"Internship #{i+1} - Start Date (optional)", key=f"int_start{i}")
+        end = st.date_input(f"Internship #{i+1} - End Date (optional)", key=f"int_end{i}")
+        if title and location:
+            internships.append({
+                "title": title,
+                "location": location,
+                "start": str(start),
+                "end": str(end)
+            })
 
-# Training
-st.subheader("🎯 Training (Optional)")
+# --- Optional Training ---
+st.subheader("📘 Training (optional)")
 training = []
-for i in range(2):
-    with st.expander(f"Training {i+1}"):
-        title = st.text_input(f"Training {i+1} - Title")
-        location = st.text_input(f"Training {i+1} - Location")
-        start = st.date_input(f"Training {i+1} - Start Date", key=f"trainstart{i}")
-        end = st.date_input(f"Training {i+1} - End Date", key=f"trainend{i}")
-        if title:
-            training.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+num_train = st.number_input("How many trainings?", min_value=0, max_value=5, value=0, step=1)
+for i in range(num_train):
+    with st.expander(f"Training #{i+1}"):
+        title = st.text_input(f"Training #{i+1} - Title", key=f"train_title{i}")
+        location = st.text_input(f"Training #{i+1} - Location", key=f"train_loc{i}")
+        start = st.date_input(f"Training #{i+1} - Start Date (optional)", key=f"train_start{i}")
+        end = st.date_input(f"Training #{i+1} - End Date (optional)", key=f"train_end{i}")
+        if title and location:
+            training.append({
+                "title": title,
+                "location": location,
+                "start": str(start),
+                "end": str(end)
+            })
 
-# Certificates
-st.subheader("📜 Certificates (Optional)")
+# --- Optional Certificates ---
+st.subheader("📄 Certificates (optional)")
 certificates = []
-for i in range(3):
-    with st.expander(f"Certificate {i+1}"):
-        title = st.text_input(f"Certificate {i+1} - Title")
-        date = st.date_input(f"Certificate {i+1} - Date", key=f"certdate{i}")
+num_cert = st.number_input("How many certificates?", min_value=0, max_value=10, value=0, step=1)
+for i in range(num_cert):
+    with st.expander(f"Certificate #{i+1}"):
+        title = st.text_input(f"Certificate #{i+1} - Title", key=f"cert_title{i}")
+        date = st.date_input(f"Certificate #{i+1} - Date", key=f"cert_date{i}")
         if title:
-            certificates.append({"title": title, "date": str(date)})
+            certificates.append({
+                "title": title,
+                "date": str(date)
+            })
 
 # AI-generated Summary
 st.subheader("🧠 Professional Summary")
