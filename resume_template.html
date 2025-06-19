@@ -6,93 +6,123 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: {{ color }};
-      margin: 40px;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      color: #333;
     }
     .left {
-      float: left;
-      width: 30%;
-      padding-right: 20px;
+      width: 35%;
+      background-color: {{ primary_color }};
+      padding: 40px 20px;
       box-sizing: border-box;
+      color: white;
     }
     .right {
-      float: left;
-      width: 70%;
+      width: 65%;
+      padding: 40px;
+      background-color: #fff;
       box-sizing: border-box;
+    }
+    .photo-box {
+      background-color: {{ secondary_color }};
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
     }
     .photo {
       width: 100%;
-      max-width: 150px;
-      border-radius: 10px;
+      max-width: 180px;
+      border-radius: 6px;
     }
-    h1, h2, h3 {
+    h1 {
+      font-size: 32px;
+      color: {{ primary_color }};
       margin-bottom: 5px;
     }
+    h2 {
+      font-size: 18px;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid {{ primary_color }};
+      padding-bottom: 5px;
+    }
+    p, li {
+      font-size: 14px;
+    }
     ul {
-      margin-top: 0;
+      padding-left: 18px;
     }
     section {
       margin-bottom: 20px;
     }
-    .clear {
-      clear: both;
+    .contact {
+      margin-bottom: 25px;
+    }
+    .contact p {
+      margin: 4px 0;
+    }
+    .label {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="left">
-    {% if photo %}
-      <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo" class="photo" />
-    {% endif %}
-
-    <section>
-      <h2>Languages</h2>
-      <ul>
-        {% for lang in languages %}
-          <li>{{ lang }}</li>
-        {% endfor %}
-      </ul>
-    </section>
-
+    <div class="photo-box">
+      {% if photo %}
+        <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo" class="photo" />
+      {% endif %}
+    </div>
+    <div class="contact">
+      <p><strong>{{ city }}, {{ country }}</strong></p>
+      <p>{{ phone }}</p>
+      <p>{{ email }}</p>
+    </div>
     <section>
       <h2>Skills</h2>
       <ul>
         {% for skill in skills %}
-          <li>{{ skill }}</li>
+        <li>{{ skill }}</li>
         {% endfor %}
       </ul>
     </section>
+    <section>
+      <h2>Languages</h2>
+      <ul>
+        {% for lang in languages %}
+        <li>{{ lang }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% if summary %}
+    <section>
+      <h2>Summary</h2>
+      <p>{{ summary }}</p>
+    </section>
+    {% endif %}
   </div>
 
   <div class="right">
     <h1>{{ name }}</h1>
-    <p>{{ email }}</p>
-
-    {% if summary %}
-    <section>
-      <h2>Professional Summary</h2>
-      <p>{{ summary }}</p>
-    </section>
-    {% endif %}
 
     <section>
       <h2>Education</h2>
       {% for edu in education %}
-        <p><strong>{{ edu.level }}</strong> — {{ edu.institution }}<br>
-        {{ edu.start }} – {{ edu.end }}</p>
+        <p><strong>{{ edu.level }}</strong> &mdash; {{ edu.institution }}<br>
+        {{ edu.start }} &ndash; {{ edu.end }}</p>
       {% endfor %}
     </section>
 
     <section>
-      <h2>Work Experience</h2>
+      <h2>Experience</h2>
       {% for job in experience %}
         <p><strong>{{ job.title }}</strong><br>
-        {{ job.start }} – {{ job.end }}<br>
+        {{ job.start }} &ndash; {{ job.end }}<br>
         {{ job.desc }}</p>
       {% endfor %}
     </section>
   </div>
-
-  <div class="clear"></div>
 </body>
 </html>
