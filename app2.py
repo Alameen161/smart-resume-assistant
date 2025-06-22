@@ -1,10 +1,10 @@
-
 import streamlit as st
 import openai
 from datetime import datetime
 from jinja2 import Template
 import base64
 from pathlib import Path
+import pycountry
 
 st.set_page_config(layout="wide")
 st.title("📄 Smart Resume Builder (HTML Download)")
@@ -42,12 +42,15 @@ st.subheader("👤 Personal Info")
 name = st.text_input("Full Name")
 email = st.text_input("Email")
 phone = st.text_input("Phone Number")
-city = st.text_input("City")
-country = st.text_input("Country")
 
-# Validate city & country with AI
-if st.button("🤔 Validate Location"):
-    location_prompt = f"Is this a valid city and country: {city}, {country}? Answer only 'Valid' or 'Invalid'."
+# Country dropdown using pycountry
+all_countries = sorted([country.name for country in pycountry.countries])
+country = st.selectbox("Country", all_countries)
+city = st.text_input("City")
+
+# Validate city automatically
+if city and country:
+    location_prompt = f"Is this a valid city in {country}: {city}? Answer only 'Valid' or 'Invalid'."
     loc_response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": location_prompt}],
@@ -55,10 +58,8 @@ if st.button("🤔 Validate Location"):
     )
     result = loc_response.choices[0].message.content.strip().lower()
     if "invalid" in result:
-        st.error("❌ Invalid location. Please check spelling.")
+        st.error("❌ Invalid city for the selected country. Please check spelling.")
         st.stop()
-    else:
-        st.success("✅ Location is valid.")
 
 # Education
 st.subheader("🎓 Education")
