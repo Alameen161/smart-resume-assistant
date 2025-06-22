@@ -1,134 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Resume</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      display: flex;
-      height: 100vh;
-    }
-    .left {
-      width: 33%;
-      background-color: {{ color }};
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .photo {
-      background-color: {{ secondary }};
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    .photo img {
-      width: 132px; /* approx 35mm */
-      height: 170px; /* approx 45mm */
-      object-fit: cover;
-      border-radius: 10px;
-    }
-    .section {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-    .right {
-      width: 67%;
-      padding: 40px;
-      overflow-y: auto;
-    }
-    h1 {
-      margin-top: 0;
-      color: {{ color }};
-    }
-    h2 {
-      color: {{ color }};
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-    ul {
-      padding-left: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 30%;
+            background-color: {{ color }};
+            color: #fff;
+            padding: 20px;
+        }
+        .sidebar img {
+            width: 120px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: {{ secondary }};
+            padding: 4px;
+        }
+        .main {
+            width: 70%;
+            padding: 20px;
+        }
+        h1, h2 {
+            margin-top: 0;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .section-title {
+            border-bottom: 2px solid {{ color }};
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="left">
-      <div class="photo">
-        {% if photo %}<img src="data:image/png;base64,{{ photo }}" alt="Profile Photo">{% endif %}
-      </div>
-      <div class="section">
-        <h3>{{ name }}</h3>
-        <p>{{ email }}</p>
-        <p>{{ phone }}</p>
+    <div class="sidebar">
+        {% if photo %}
+        <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo">
+        {% endif %}
+        <h1>{{ name }}</h1>
         <p>{{ city }}, {{ country }}</p>
-      </div>
-      <div class="section">
-        <h3>Skills</h3>
+        <p>{{ phone }}</p>
+        <p>{{ email }}</p>
+
+        <h2>Skills</h2>
         <ul>
-          {% for skill in skills %}<li>{{ skill }}</li>{% endfor %}
+            {% for skill in skills %}
+            <li>{{ skill }}</li>
+            {% endfor %}
         </ul>
-      </div>
-      <div class="section">
-        <h3>Languages</h3>
+
+        <h2>Languages</h2>
         <ul>
-          {% for lang in languages %}<li>{{ lang.language }} - {{ lang.level }}</li>{% endfor %}
+            {% for lang in languages %}
+            <li>{{ lang.language }} - {{ lang.level }}</li>
+            {% endfor %}
         </ul>
-      </div>
     </div>
+    <div class="main">
+        {% if summary %}
+        <section>
+            <h2 class="section-title">Professional Summary</h2>
+            <p>{{ summary }}</p>
+        </section>
+        {% endif %}
 
-    <div class="right">
-      {% if summary %}
-      <section>
-        <h2>Professional Summary</h2>
-        <p>{{ summary }}</p>
-      </section>
-      {% endif %}
+        <section>
+            <h2 class="section-title">Education</h2>
+            {% for edu in education %}
+            <p><strong>{{ edu.level }}</strong>: {{ edu.institution }} ({{ edu.start }} - {{ edu.end }})</p>
+            {% endfor %}
+        </section>
 
-      <section>
-        <h2>Education</h2>
-        {% for edu in education %}
-          <p><strong>{{ edu.level }}:</strong> {{ edu.institution }} ({{ edu.start }} - {{ edu.end }})</p>
-        {% endfor %}
-      </section>
+        <section>
+            <h2 class="section-title">Experience</h2>
+            {% for exp in experience %}
+            <p><strong>{{ exp.title }}</strong> ({{ exp.start }} - {{ exp.end }})<br>{{ exp.desc }}</p>
+            {% endfor %}
+        </section>
 
-      <section>
-        <h2>Work Experience</h2>
-        {% for exp in experience %}
-          <p><strong>{{ exp.title }}</strong><br>{{ exp.desc }}<br>({{ exp.start }} - {{ exp.end }})</p>
-        {% endfor %}
-      </section>
+        {% if internships %}
+        <section>
+            <h2 class="section-title">Internships</h2>
+            {% for intern in internships %}
+            <p><strong>{{ intern.title }}</strong> - {{ intern.location }} ({{ intern.start }} - {{ intern.end }})</p>
+            {% endfor %}
+        </section>
+        {% endif %}
 
-      {% if internships %}
-      <section>
-        <h2>Internships</h2>
-        {% for intern in internships %}
-          <p><strong>{{ intern.title }}</strong> – {{ intern.location }} {% if intern.start %} ({{ intern.start }} - {{ intern.end }}){% endif %}</p>
-        {% endfor %}
-      </section>
-      {% endif %}
+        {% if trainings %}
+        <section>
+            <h2 class="section-title">Trainings</h2>
+            {% for train in trainings %}
+            <p><strong>{{ train.title }}</strong> - {{ train.location }} ({{ train.start }} - {{ train.end }})</p>
+            {% endfor %}
+        </section>
+        {% endif %}
 
-      {% if training %}
-      <section>
-        <h2>Training</h2>
-        {% for t in training %}
-          <p><strong>{{ t.title }}</strong> – {{ t.location }} {% if t.start %} ({{ t.start }} - {{ t.end }}){% endif %}</p>
-        {% endfor %}
-      </section>
-      {% endif %}
+        {% if certificates %}
+        <section>
+            <h2 class="section-title">Certificates</h2>
+            {% for cert in certificates %}
+            <p><strong>{{ cert.title }}</strong> - {{ cert.date }}</p>
+            {% endfor %}
+        </section>
+        {% endif %}
 
-      {% if certificates %}
-      <section>
-        <h2>Certificates</h2>
-        {% for cert in certificates %}
-          <p><strong>{{ cert.title }}</strong> ({{ cert.date }})</p>
-        {% endfor %}
-      </section>
-      {% endif %}
     </div>
-  </div>
 </body>
 </html>
