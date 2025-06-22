@@ -1,10 +1,10 @@
+
 import streamlit as st
 import openai
 from datetime import datetime
 from jinja2 import Template
 import base64
 from pathlib import Path
-import pycountry
 
 st.set_page_config(layout="wide")
 st.title("📄 Smart Resume Builder (HTML Download)")
@@ -42,21 +42,32 @@ st.subheader("👤 Personal Info")
 name = st.text_input("Full Name")
 email = st.text_input("Email")
 phone = st.text_input("Phone Number")
-
-# Country dropdown using pycountry
-all_countries = sorted([country.name for country in pycountry.countries])
-country = st.selectbox("Country", all_countries)
 city = st.text_input("City")
+country = st.text_input("Country")
+
+# Dynamic Sections Initialization
+for section in ["edu", "job", "intern", "train", "cert"]:
+    if f"{section}_count" not in st.session_state:
+        st.session_state[f"{section}_count"] = 1
 
 # Education
 st.subheader("🎓 Education")
 education = []
-for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
-    with st.expander(f"{level}"):
-        school = st.text_input(f"{level} - Institution")
-        start = st.date_input(f"{level} - Start Date")
-        ongoing = st.checkbox(f"{level} - Ongoing")
-        end = None if ongoing else st.date_input(f"{level} - End Date")
+cols = st.columns([1, 1])
+if cols[0].button("➕ Add Education"):
+    if st.session_state.edu_count < 10:
+        st.session_state.edu_count += 1
+if cols[1].button("➖ Remove Education"):
+    if st.session_state.edu_count > 1:
+        st.session_state.edu_count -= 1
+
+for i in range(st.session_state.edu_count):
+    with st.expander(f"Education {i+1}"):
+        level = st.selectbox(f"Level {i+1}", ["High School", "Bachelor's", "Master's", "PhD/Other"], key=f"level{i}")
+        school = st.text_input(f"Institution {i+1}", key=f"school{i}")
+        start = st.date_input(f"Start Date {i+1}", key=f"edu_start{i}")
+        ongoing = st.checkbox(f"Ongoing {i+1}", key=f"edu_ongoing{i}")
+        end = None if ongoing else st.date_input(f"End Date {i+1}", key=f"edu_end{i}")
         if school:
             education.append({
                 "level": level,
@@ -65,13 +76,21 @@ for level in ["High School", "Bachelor's", "Master's", "PhD/Other"]:
                 "end": "Ongoing" if ongoing else str(end)
             })
 
-# Experience
+# Work Experience
 st.subheader("💼 Work Experience")
 experience = []
-for i in range(3):
+cols = st.columns([1, 1])
+if cols[0].button("➕ Add Job"):
+    if st.session_state.job_count < 10:
+        st.session_state.job_count += 1
+if cols[1].button("➖ Remove Job"):
+    if st.session_state.job_count > 1:
+        st.session_state.job_count -= 1
+
+for i in range(st.session_state.job_count):
     with st.expander(f"Job {i+1}"):
-        job = st.text_input(f"Job {i+1} - Title/Role")
-        desc = st.text_area(f"Job {i+1} - Description")
+        job = st.text_input(f"Title/Role {i+1}", key=f"job_title{i}")
+        desc = st.text_area(f"Description {i+1}", key=f"job_desc{i}")
         if desc:
             correction_prompt = f"Correct grammar and spelling only: {desc}"
             correction_response = client.chat.completions.create(
@@ -80,9 +99,9 @@ for i in range(3):
                 temperature=0
             )
             desc = correction_response.choices[0].message.content.strip()
-        start = st.date_input(f"Job {i+1} - Start Date", key=f"jobstart{i}")
-        ongoing = st.checkbox(f"Job {i+1} - Ongoing", key=f"ongoing{i}")
-        end = None if ongoing else st.date_input(f"Job {i+1} - End Date", key=f"jobend{i}")
+        start = st.date_input(f"Start Date {i+1}", key=f"job_start{i}")
+        ongoing = st.checkbox(f"Ongoing {i+1}", key=f"job_ongoing{i}")
+        end = None if ongoing else st.date_input(f"End Date {i+1}", key=f"job_end{i}")
         if job and desc:
             experience.append({
                 "title": job,
@@ -92,77 +111,72 @@ for i in range(3):
             })
 
 # Internships
-st.subheader("🎯 Internships (Optional)")
+st.subheader("🧪 Internships")
 internships = []
-for i in range(2):
+cols = st.columns([1, 1])
+if cols[0].button("➕ Add Internship"):
+    if st.session_state.intern_count < 10:
+        st.session_state.intern_count += 1
+if cols[1].button("➖ Remove Internship"):
+    if st.session_state.intern_count > 1:
+        st.session_state.intern_count -= 1
+
+for i in range(st.session_state.intern_count):
     with st.expander(f"Internship {i+1}"):
-        title = st.text_input(f"Internship {i+1} - Title")
-        location = st.text_input(f"Internship {i+1} - Location")
-        start = st.date_input(f"Internship {i+1} - Start Date", key=f"intstart{i}")
-        ongoing = st.checkbox(f"Internship {i+1} - Ongoing", key=f"intongoing{i}")
-        end = None if ongoing else st.date_input(f"Internship {i+1} - End Date", key=f"intend{i}")
+        title = st.text_input(f"Internship Title {i+1}", key=f"intern_title{i}")
+        loc = st.text_input(f"Location {i+1}", key=f"intern_loc{i}")
+        start = st.text_input(f"Start Date {i+1}", key=f"intern_start{i}")
+        end = st.text_input(f"End Date {i+1}", key=f"intern_end{i}")
         if title:
-            internships.append({"title": title, "location": location, "start": str(start), "end": "Ongoing" if ongoing else str(end)})
+            internships.append({"title": title, "location": loc, "start": start, "end": end})
 
 # Trainings
-st.subheader("📚 Trainings (Optional)")
+st.subheader("🎯 Trainings")
 trainings = []
-for i in range(2):
+cols = st.columns([1, 1])
+if cols[0].button("➕ Add Training"):
+    if st.session_state.train_count < 10:
+        st.session_state.train_count += 1
+if cols[1].button("➖ Remove Training"):
+    if st.session_state.train_count > 1:
+        st.session_state.train_count -= 1
+
+for i in range(st.session_state.train_count):
     with st.expander(f"Training {i+1}"):
-        title = st.text_input(f"Training {i+1} - Title")
-        location = st.text_input(f"Training {i+1} - Location")
-        start = st.date_input(f"Training {i+1} - Start Date", key=f"trainstart{i}")
-        ongoing = st.checkbox(f"Training {i+1} - Ongoing", key=f"trainongoing{i}")
-        end = None if ongoing else st.date_input(f"Training {i+1} - End Date", key=f"trainend{i}")
+        title = st.text_input(f"Training Title {i+1}", key=f"train_title{i}")
+        loc = st.text_input(f"Location {i+1}", key=f"train_loc{i}")
+        start = st.text_input(f"Start Date {i+1}", key=f"train_start{i}")
+        end = st.text_input(f"End Date {i+1}", key=f"train_end{i}")
         if title:
-            trainings.append({"title": title, "location": location, "start": str(start), "end": "Ongoing" if ongoing else str(end)})
+            trainings.append({"title": title, "location": loc, "start": start, "end": end})
 
 # Certificates
-st.subheader("📄 Certificates (Optional)")
+st.subheader("📜 Certificates")
 certificates = []
-for i in range(3):
+cols = st.columns([1, 1])
+if cols[0].button("➕ Add Certificate"):
+    if st.session_state.cert_count < 10:
+        st.session_state.cert_count += 1
+if cols[1].button("➖ Remove Certificate"):
+    if st.session_state.cert_count > 1:
+        st.session_state.cert_count -= 1
+
+for i in range(st.session_state.cert_count):
     with st.expander(f"Certificate {i+1}"):
-        title = st.text_input(f"Certificate {i+1} - Title")
-        date = st.date_input(f"Certificate {i+1} - Date", key=f"certdate{i}")
+        title = st.text_input(f"Certificate Title {i+1}", key=f"cert_title{i}")
+        date = st.text_input(f"Date {i+1}", key=f"cert_date{i}")
         if title:
-            certificates.append({"title": title, "date": str(date)})
+            certificates.append({"title": title, "date": date})
 
-# Summary
-summary = ""
-if st.button("🧠 Generate Summary"):
-    prompt = f"Generate a short professional summary based on the following:\nName: {name}\nEmail: {email}\nPhone: {phone}\nCity: {city}, {country}\nSkills: {', '.join(skill_list)}\nExperience: {experience}"
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
-    )
-    summary = response.choices[0].message.content.strip()
-    st.text_area("📝 Summary (editable)", value=summary, key="summary_text")
-
-# AI Suggestions before generating resume
-if st.button("🔧 Get AI Suggestions"):
-    suggestion_prompt = f"Give concise suggestions to improve this resume:\nSkills: {skill_list}\nExperience: {experience}"
-    suggestion_response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": suggestion_prompt}],
-        temperature=0.5
-    )
-    ai_suggestions = suggestion_response.choices[0].message.content.strip()
-    st.markdown("### 🔍 AI Suggestions:")
-    st.write(ai_suggestions)
-
-# Generate Resume
+# Generate HTML
 if st.button("📄 Generate HTML Resume"):
     with st.spinner("Generating..."):
         img_base64 = ""
         if photo:
             img_bytes = photo.read()
             img_base64 = base64.b64encode(img_bytes).decode()
-
-        # Load template
         template_path = Path("resume_template.html")
         html_template = Template(template_path.read_text())
-
         html = html_template.render(
             name=name,
             email=email,
@@ -176,11 +190,9 @@ if st.button("📄 Generate HTML Resume"):
             internships=internships,
             trainings=trainings,
             certificates=certificates,
-            summary=st.session_state.get("summary_text", summary),
             color=theme_color,
             secondary=secondary_color,
-            photo=img_base64
+            photo=img_base64,
+            summary=""
         )
-
-        st.success("✅ Resume generated!")
-        st.download_button("📅 Download HTML Resume", html, "resume.html", mime="text/html")
+        st.download_button("📥 Download HTML Resume", html, "resume.html", mime="text/html")
