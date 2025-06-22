@@ -48,19 +48,6 @@ all_countries = sorted([country.name for country in pycountry.countries])
 country = st.selectbox("Country", all_countries)
 city = st.text_input("City")
 
-# Validate city automatically
-if city and country:
-    location_prompt = f"Is this a valid city in {country}: {city}? Answer only 'Valid' or 'Invalid'."
-    loc_response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": location_prompt}],
-        temperature=0
-    )
-    result = loc_response.choices[0].message.content.strip().lower()
-    if "invalid" in result:
-        st.error("❌ Invalid city for the selected country. Please check spelling.")
-        st.stop()
-
 # Education
 st.subheader("🎓 Education")
 education = []
@@ -103,6 +90,42 @@ for i in range(3):
                 "start": str(start),
                 "end": "Ongoing" if ongoing else str(end)
             })
+
+# Internships
+st.subheader("🎯 Internships (Optional)")
+internships = []
+for i in range(2):
+    with st.expander(f"Internship {i+1}"):
+        title = st.text_input(f"Internship {i+1} - Title")
+        location = st.text_input(f"Internship {i+1} - Location")
+        start = st.date_input(f"Internship {i+1} - Start Date", key=f"intstart{i}")
+        ongoing = st.checkbox(f"Internship {i+1} - Ongoing", key=f"intongoing{i}")
+        end = None if ongoing else st.date_input(f"Internship {i+1} - End Date", key=f"intend{i}")
+        if title:
+            internships.append({"title": title, "location": location, "start": str(start), "end": "Ongoing" if ongoing else str(end)})
+
+# Trainings
+st.subheader("📚 Trainings (Optional)")
+trainings = []
+for i in range(2):
+    with st.expander(f"Training {i+1}"):
+        title = st.text_input(f"Training {i+1} - Title")
+        location = st.text_input(f"Training {i+1} - Location")
+        start = st.date_input(f"Training {i+1} - Start Date", key=f"trainstart{i}")
+        ongoing = st.checkbox(f"Training {i+1} - Ongoing", key=f"trainongoing{i}")
+        end = None if ongoing else st.date_input(f"Training {i+1} - End Date", key=f"trainend{i}")
+        if title:
+            trainings.append({"title": title, "location": location, "start": str(start), "end": "Ongoing" if ongoing else str(end)})
+
+# Certificates
+st.subheader("📄 Certificates (Optional)")
+certificates = []
+for i in range(3):
+    with st.expander(f"Certificate {i+1}"):
+        title = st.text_input(f"Certificate {i+1} - Title")
+        date = st.date_input(f"Certificate {i+1} - Date", key=f"certdate{i}")
+        if title:
+            certificates.append({"title": title, "date": str(date)})
 
 # Summary
 summary = ""
@@ -150,6 +173,9 @@ if st.button("📄 Generate HTML Resume"):
             languages=lang_list,
             education=education,
             experience=experience,
+            internships=internships,
+            trainings=trainings,
+            certificates=certificates,
             summary=st.session_state.get("summary_text", summary),
             color=theme_color,
             secondary=secondary_color,
