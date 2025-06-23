@@ -51,30 +51,38 @@ city = st.text_input("City")
 countries = sorted([country.name for country in pycountry.countries])
 country = st.selectbox("Country", countries)
 
-# Education Section
+# Education
 st.subheader("🎓 Education")
 education = []
-edu_count = st.number_input("Number of education entries", 0, 10, step=1, key="edu_count")
-for i in range(edu_count):
-    with st.expander(f"Education Entry {i+1}"):
-        level = st.selectbox("Education Level", ["High School", "Associate's", "Bachelor's", "Master's", "PhD/Other"], key=f"edulevel_{i}")
-        title = st.text_input("Graduation Title", key=f"edutitle_{i}")
-        expected = st.checkbox("Expected Graduation", key=f"expected_{i}")
-        if expected:
-            graduation = "Expected"
-        else:
-            graduation_date = st.date_input("Graduation Date", key=f"edudate_{i}")
-            graduation = str(graduation_date)
-        education.append({"level": level, "title": title, "graduation": graduation})
+for i in range(10):
+    with st.expander(f"Education {i+1}"):
+        level = st.selectbox("Education Level", ["High School", "Bachelor's", "Master's", "PhD/Other"], key=f"edulevel{i}")
+        institution = st.text_input("Institution Name", key=f"school{i}")
+        edu_city = st.text_input("City", key=f"educity{i}")
+        edu_country = st.text_input("Country", key=f"educountry{i}")
+        title = st.text_input("Title of Graduation", key=f"title{i}")
+        expected = st.checkbox("Expected Graduation?", key=f"exp{i}")
+        date = st.date_input("Graduation Date", key=f"date{i}")
+        grad_date = f"Expected to graduate on {date}" if expected else str(date)
+        if institution:
+            education.append({
+                "level": level,
+                "institution": institution,
+                "city": edu_city,
+                "country": edu_country,
+                "title": title,
+                "date": grad_date
+            })
 
-# Work Experience Section
+# Experience
 st.subheader("💼 Work Experience")
 experience = []
-job_count = st.number_input("Number of jobs", 0, 10, step=1, key="job_count")
-for i in range(job_count):
+for i in range(10):
     with st.expander(f"Job {i+1}"):
-        job = st.text_input("Title/Role", key=f"jobtitle_{i}")
-        desc = st.text_area("Description", key=f"jobdesc_{i}")
+        job = st.text_input("Job Title", key=f"job{i}")
+        job_city = st.text_input("City", key=f"jobcity{i}")
+        job_country = st.text_input("Country", key=f"jobcountry{i}")
+        desc = st.text_area("Description", key=f"desc{i}")
         if desc:
             correction_prompt = f"Correct grammar and spelling only: {desc}"
             correction_response = client.chat.completions.create(
@@ -83,17 +91,18 @@ for i in range(job_count):
                 temperature=0
             )
             desc = correction_response.choices[0].message.content.strip()
-        start = st.date_input("Start Date", key=f"jobstart_{i}")
-        ongoing = st.checkbox("Ongoing", key=f"jobongoing_{i}")
-        end = None if ongoing else st.date_input("End Date", key=f"jobend_{i}")
-        if job and desc:
+        start = st.date_input("Start Date", key=f"jobstart{i}")
+        ongoing = st.checkbox("Ongoing", key=f"jobon{i}")
+        end = "Ongoing" if ongoing else str(st.date_input("End Date", key=f"jobend{i}"))
+        if job:
             experience.append({
                 "title": job,
+                "city": job_city,
+                "country": job_country,
                 "desc": desc,
                 "start": str(start),
-                "end": "Ongoing" if ongoing else str(end)
+                "end": end
             })
-
 # Internships
 st.subheader("🎯 Internships")
 internships = []
