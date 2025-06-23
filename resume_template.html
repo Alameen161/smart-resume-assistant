@@ -79,14 +79,14 @@
         <section>
             <h2 class="section-title">Education</h2>
             {% for edu in education %}
-            <p><strong>{{ edu.level }}</strong>: {{ edu.title }} - {{ edu.institution }} ({{ edu.date }})</p>
+            <p><strong>{{ edu.level }}</strong>: {{ edu.institution }}<br>{{ edu.city }}, {{ edu.country }}<br>{{ edu.title }}<br>{{ edu.date }}</p>
             {% endfor %}
         </section>
 
         <section>
             <h2 class="section-title">Experience</h2>
             {% for exp in experience %}
-            <p><strong>{{ exp.title }}</strong> ({{ exp.start }} - {{ exp.end }})<br>{{ exp.desc }}</p>
+            <p><strong>{{ exp.title }}</strong><br>{{ exp.city }}, {{ exp.country }}<br>({{ exp.start }} - {{ exp.end }})<br>{{ exp.desc }}</p>
             {% endfor %}
         </section>
 
