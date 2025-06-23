@@ -54,7 +54,8 @@ country = st.selectbox("Country", countries)
 # Education
 st.subheader("🎓 Education")
 education = []
-for i in range(10):
+edu_count = st.number_input("Number of Education Entries", min_value=1, max_value=10, value=1)
+for i in range(edu_count):
     with st.expander(f"Education {i+1}"):
         level = st.selectbox("Education Level", ["High School", "Bachelor's", "Master's", "PhD/Other"], key=f"edulevel{i}")
         institution = st.text_input("Institution Name", key=f"school{i}")
@@ -77,7 +78,8 @@ for i in range(10):
 # Experience
 st.subheader("💼 Work Experience")
 experience = []
-for i in range(10):
+exp_count = st.number_input("Number of Job Entries", min_value=1, max_value=10, value=1)
+for i in range(exp_count):
     with st.expander(f"Job {i+1}"):
         job = st.text_input("Job Title", key=f"job{i}")
         job_city = st.text_input("City", key=f"jobcity{i}")
