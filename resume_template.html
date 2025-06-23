@@ -79,7 +79,7 @@
         <section>
             <h2 class="section-title">Education</h2>
             {% for edu in education %}
-            <p><strong>{{ edu.level }}</strong>: {{ edu.institution }} ({{ edu.start }} - {{ edu.end }})</p>
+            <p><strong>{{ edu.level }}</strong>: {{ edu.title }} - {{ edu.institution }} ({{ edu.date }})</p>
             {% endfor %}
         </section>
 
