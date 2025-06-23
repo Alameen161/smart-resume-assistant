@@ -28,15 +28,16 @@ with st.sidebar:
     skills = st.text_area("Enter each skill on a new line")
     skill_list = [s.strip() for s in skills.split("\n") if s.strip()]
 
-    languages = []
-    st.markdown("**Languages**")
-    lang_count = st.number_input("How many languages do you want to add?", min_value=1, max_value=10, value=1)
-    levels = ["Native", "Fluent", "Professional", "Intermediate", "Beginner"]
-    for i in range(lang_count):
-        lang = st.text_input(f"Language {i+1}")
-        level = st.selectbox(f"Proficiency {i+1}", levels, key=f"level_{i}")
+    language_count = st.number_input("Number of languages", 0, 10, key="lang_count")
+    lang_list = []
+    for i in range(language_count):
+        col1, col2 = st.columns(2)
+        with col1:
+            lang = st.text_input(f"Language {i+1}", key=f"lang_{i}")
+        with col2:
+            level = st.selectbox(f"Level {i+1}", ["Beginner", "Intermediate", "Advanced", "Fluent", "Native"], key=f"level_{i}")
         if lang:
-            languages.append({"language": lang, "level": level})
+            lang_list.append({"language": lang.strip(), "level": level})
 
     theme_color = st.color_picker("Pick a primary theme color", "#f0f0f0")
     secondary_color = st.color_picker("Pick a secondary color for photo box", "#cccccc")
@@ -46,36 +47,34 @@ st.subheader("👤 Personal Info")
 name = st.text_input("Full Name")
 email = st.text_input("Email")
 phone = st.text_input("Phone Number")
-country = st.selectbox("Country", sorted([c.name for c in pycountry.countries]))
 city = st.text_input("City")
+countries = sorted([country.name for country in pycountry.countries])
+country = st.selectbox("Country", countries)
 
-# Education
+# Education Section
 st.subheader("🎓 Education")
 education = []
-edu_count = st.number_input("Number of education entries", min_value=1, max_value=10, value=1)
+edu_count = st.number_input("Number of education entries", 0, 10, step=1, key="edu_count")
 for i in range(edu_count):
-    with st.expander(f"Education {i+1}"):
-        level = st.text_input(f"Education Level {i+1}")
-        school = st.text_input(f"Institution {i+1}")
-        start = st.date_input(f"Start Date {i+1}", key=f"edu_start{i}")
-        ongoing = st.checkbox(f"Ongoing {i+1}", key=f"edu_ongoing{i}")
-        end = None if ongoing else st.date_input(f"End Date {i+1}", key=f"edu_end{i}")
-        if school:
-            education.append({
-                "level": level,
-                "institution": school,
-                "start": str(start),
-                "end": "Ongoing" if ongoing else str(end)
-            })
+    with st.expander(f"Education Entry {i+1}"):
+        level = st.selectbox("Education Level", ["High School", "Associate's", "Bachelor's", "Master's", "PhD/Other"], key=f"edulevel_{i}")
+        title = st.text_input("Graduation Title", key=f"edutitle_{i}")
+        expected = st.checkbox("Expected Graduation", key=f"expected_{i}")
+        if expected:
+            graduation = "Expected"
+        else:
+            graduation_date = st.date_input("Graduation Date", key=f"edudate_{i}")
+            graduation = str(graduation_date)
+        education.append({"level": level, "title": title, "graduation": graduation})
 
-# Work experience
+# Work Experience Section
 st.subheader("💼 Work Experience")
 experience = []
-exp_count = st.number_input("Number of work experiences", min_value=1, max_value=10, value=1)
-for i in range(exp_count):
+job_count = st.number_input("Number of jobs", 0, 10, step=1, key="job_count")
+for i in range(job_count):
     with st.expander(f"Job {i+1}"):
-        title = st.text_input(f"Job Title {i+1}")
-        desc = st.text_area(f"Description {i+1}")
+        job = st.text_input("Title/Role", key=f"jobtitle_{i}")
+        desc = st.text_area("Description", key=f"jobdesc_{i}")
         if desc:
             correction_prompt = f"Correct grammar and spelling only: {desc}"
             correction_response = client.chat.completions.create(
@@ -84,53 +83,50 @@ for i in range(exp_count):
                 temperature=0
             )
             desc = correction_response.choices[0].message.content.strip()
-        start = st.date_input(f"Start Date {i+1}", key=f"job_start{i}")
-        ongoing = st.checkbox(f"Ongoing {i+1}", key=f"job_ongoing{i}")
-        end = None if ongoing else st.date_input(f"End Date {i+1}", key=f"job_end{i}")
-        if title and desc:
+        start = st.date_input("Start Date", key=f"jobstart_{i}")
+        ongoing = st.checkbox("Ongoing", key=f"jobongoing_{i}")
+        end = None if ongoing else st.date_input("End Date", key=f"jobend_{i}")
+        if job and desc:
             experience.append({
-                "title": title,
+                "title": job,
                 "desc": desc,
                 "start": str(start),
                 "end": "Ongoing" if ongoing else str(end)
             })
 
 # Internships
-st.subheader("🏢 Internships")
+st.subheader("🎯 Internships")
 internships = []
-intern_count = st.number_input("Number of internships", min_value=0, max_value=10, value=0)
+intern_count = st.number_input("Number of internships", 0, 10, step=1, key="intern_count")
 for i in range(intern_count):
     with st.expander(f"Internship {i+1}"):
-        title = st.text_input(f"Internship Title {i+1}")
-        location = st.text_input(f"Location {i+1}")
-        start = st.date_input(f"Start Date {i+1}", key=f"intern_start{i}")
-        end = st.date_input(f"End Date {i+1}", key=f"intern_end{i}")
-        if title:
-            internships.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+        title = st.text_input("Title", key=f"intern_title_{i}")
+        location = st.text_input("Location", key=f"intern_loc_{i}")
+        start = st.date_input("Start Date", key=f"intern_start_{i}")
+        end = st.date_input("End Date", key=f"intern_end_{i}")
+        internships.append({"title": title, "location": location, "start": str(start), "end": str(end)})
 
 # Trainings
-st.subheader("🏋️ Trainings")
+st.subheader("📚 Trainings")
 trainings = []
-training_count = st.number_input("Number of trainings", min_value=0, max_value=10, value=0)
-for i in range(training_count):
+train_count = st.number_input("Number of trainings", 0, 10, step=1, key="train_count")
+for i in range(train_count):
     with st.expander(f"Training {i+1}"):
-        title = st.text_input(f"Training Title {i+1}")
-        location = st.text_input(f"Location {i+1}")
-        start = st.date_input(f"Start Date {i+1}", key=f"train_start{i}")
-        end = st.date_input(f"End Date {i+1}", key=f"train_end{i}")
-        if title:
-            trainings.append({"title": title, "location": location, "start": str(start), "end": str(end)})
+        title = st.text_input("Title", key=f"train_title_{i}")
+        location = st.text_input("Location", key=f"train_loc_{i}")
+        start = st.date_input("Start Date", key=f"train_start_{i}")
+        end = st.date_input("End Date", key=f"train_end_{i}")
+        trainings.append({"title": title, "location": location, "start": str(start), "end": str(end)})
 
 # Certificates
-st.subheader("📅 Certificates")
+st.subheader("📜 Certificates")
 certificates = []
-cert_count = st.number_input("Number of certificates", min_value=0, max_value=10, value=0)
+cert_count = st.number_input("Number of certificates", 0, 10, step=1, key="cert_count")
 for i in range(cert_count):
     with st.expander(f"Certificate {i+1}"):
-        title = st.text_input(f"Certificate Title {i+1}")
-        date = st.date_input(f"Date {i+1}", key=f"cert_date{i}")
-        if title:
-            certificates.append({"title": title, "date": str(date)})
+        title = st.text_input("Certificate Title", key=f"cert_title_{i}")
+        date = st.date_input("Date", key=f"cert_date_{i}")
+        certificates.append({"title": title, "date": str(date)})
 
 # Summary
 summary = ""
@@ -174,7 +170,7 @@ if st.button("📄 Generate HTML Resume"):
             city=city,
             country=country,
             skills=skill_list,
-            languages=languages,
+            languages=lang_list,
             education=education,
             experience=experience,
             internships=internships,
