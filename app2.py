@@ -139,53 +139,31 @@ for i in range(cert_count):
         date = st.date_input("Date", key=f"cert_date_{i}")
         certificates.append({"title": title, "date": str(date)})
 
-# Manual and AI Summary Section
+# Manual Summary Input
 st.subheader("📝 Summary")
+manual_summary = st.text_area("✍️ Your Summary", value=st.session_state.get("manual_summary", ""))
 
-# Manual input
-manual_summary = st.text_area("✍️ Your Summary", key="manual_summary")
+# Save manual summary to session
+st.session_state["manual_summary"] = manual_summary
 
-# AI summary generation
-generated_summary = ""
-if st.button("🧠 Generate AI Summary"):
-    base_summary = f"Here is a resume for {name} who lives in {city}, {country}. They have experience as: {experience}. Their skills include: {', '.join(skill_list)}."
-    if manual_summary:
-        base_summary = f"Here's an original summary: {manual_summary}\n\nNow enhance it into a professional resume summary."
-
-    response = client.chat.completions.create(
+# AI Summary
+if st.button("🤖 Generate AI Summary"):
+    ai_prompt = f"Write a professional summary based on this text: {manual_summary}" if manual_summary else \
+                f"Generate a short professional summary based on the following:\nName: {name}\nEmail: {email}\nPhone: {phone}\nCity: {city}, {country}\nSkills: {skills}\nExperience: {experience}"
+    ai_response = client.chat.completions.create(
         model="gpt-4",
-        messages=[{"role": "user", "content": base_summary}],
+        messages=[{"role": "user", "content": ai_prompt}],
         temperature=0.7
     )
-    generated_summary = response.choices[0].message.content.strip()
-    st.session_state["ai_summary"] = generated_summary
-    st.success("✅ AI Summary Generated!")
+    st.session_state["ai_summary"] = ai_response.choices[0].message.content.strip()
 
-# Show AI summary if it exists
+# Display AI Suggested Summary
 if "ai_summary" in st.session_state:
-    st.markdown("**💡 AI Suggested Summary:**")
-    st.text_area("AI Summary", value=st.session_state["ai_summary"], key="ai_summary_display", height=150)
-
-    # Replace manual summary with AI summary
-    if st.button("Replace My Summary With AI Version"):
+    st.markdown("### 💡 AI Suggested Summary:")
+    st.text_area("AI Summary", value=st.session_state["ai_summary"], key="ai_summary_display")
+    if st.button("🔁 Replace My Summary With AI Version"):
         st.session_state["manual_summary"] = st.session_state["ai_summary"]
-        st.success("✅ Manual summary updated with AI version.")
 
-# Final summary to be included in HTML
-final_summary = st.session_state.get("manual_summary", manual_summary)
-
-
-# AI Suggestions
-if st.button("🔧 Get AI Suggestions"):
-    suggestion_prompt = f"Give concise suggestions to improve this resume:\nSkills: {skill_list}\nExperience: {experience}"
-    suggestion_response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": suggestion_prompt}],
-        temperature=0.5
-    )
-    ai_suggestions = suggestion_response.choices[0].message.content.strip()
-    st.markdown("### 🔍 AI Suggestions:")
-    st.write(ai_suggestions)
 
 # Generate Resume
 if st.button("📄 Generate HTML Resume"):
