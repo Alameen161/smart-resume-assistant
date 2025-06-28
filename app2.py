@@ -173,6 +173,8 @@ if st.button("📄 Generate HTML Resume"):
             img_bytes = photo.read()
             img_base64 = base64.b64encode(img_bytes).decode()
 
+        summary = st.session_state.get("manual_summary", "")
+
         template_path = Path("resume_template.html")
         html_template = Template(template_path.read_text())
 
@@ -182,18 +184,16 @@ if st.button("📄 Generate HTML Resume"):
             phone=phone,
             city=city,
             country=country,
-            skills=skill_list,
-            languages=lang_list,
+            skills=skills.split("\n"),
+            languages=languages,
             education=education,
             experience=experience,
-            internships=internships,
-            trainings=trainings,
-            certificates=certificates,
-            summary=st.session_state.get("summary_text", summary),
+            summary=summary,
             color=theme_color,
             secondary=secondary_color,
             photo=img_base64
         )
 
         st.success("✅ Resume generated!")
-        st.download_button("📅 Download HTML Resume", html, "resume.html", mime="text/html")
+        st.download_button("📥 Download HTML Resume", html, "resume.html", mime="text/html")
+
