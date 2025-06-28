@@ -185,7 +185,7 @@ if st.button("📄 Generate HTML Resume"):
             city=city,
             country=country,
             skills=skills.split("\n"),
-            languages=languages,
+            languages=lang_list,
             education=education,
             experience=experience,
             summary=summary,
