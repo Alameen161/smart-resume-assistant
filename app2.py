@@ -139,17 +139,41 @@ for i in range(cert_count):
         date = st.date_input("Date", key=f"cert_date_{i}")
         certificates.append({"title": title, "date": str(date)})
 
-# Summary
-summary = ""
-if st.button("🧠 Generate Summary"):
-    prompt = f"Generate a short professional summary based on the following:\nName: {name}\nEmail: {email}\nPhone: {phone}\nCity: {city}, {country}\nSkills: {', '.join(skill_list)}\nExperience: {experience}"
+# Manual and AI Summary Section
+st.subheader("📝 Summary")
+
+# Manual input
+manual_summary = st.text_area("✍️ Your Summary", key="manual_summary")
+
+# AI summary generation
+generated_summary = ""
+if st.button("🧠 Generate AI Summary"):
+    base_summary = f"Here is a resume for {name} who lives in {city}, {country}. They have experience as: {experience}. Their skills include: {', '.join(skill_list)}."
+    if manual_summary:
+        base_summary = f"Here's an original summary: {manual_summary}\n\nNow enhance it into a professional resume summary."
+
     response = client.chat.completions.create(
         model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": base_summary}],
         temperature=0.7
     )
-    summary = response.choices[0].message.content.strip()
-    st.text_area("📝 Summary (editable)", value=summary, key="summary_text")
+    generated_summary = response.choices[0].message.content.strip()
+    st.session_state["ai_summary"] = generated_summary
+    st.success("✅ AI Summary Generated!")
+
+# Show AI summary if it exists
+if "ai_summary" in st.session_state:
+    st.markdown("**💡 AI Suggested Summary:**")
+    st.text_area("AI Summary", value=st.session_state["ai_summary"], key="ai_summary_display", height=150)
+
+    # Replace manual summary with AI summary
+    if st.button("Replace My Summary With AI Version"):
+        st.session_state["manual_summary"] = st.session_state["ai_summary"]
+        st.success("✅ Manual summary updated with AI version.")
+
+# Final summary to be included in HTML
+final_summary = st.session_state.get("manual_summary", manual_summary)
+
 
 # AI Suggestions
 if st.button("🔧 Get AI Suggestions"):
