@@ -5,42 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume</title>
     <style>
+        @page { size: A4; margin: 0; }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
+            width: 100%;
         }
         .sidebar {
             width: 30%;
             background-color: {{ color }};
             color: #fff;
             padding: 20px;
+            box-sizing: border-box;
         }
         .sidebar img {
-            width: 120px;
-            height: 150px;
+            width: 35mm;
+            height: 45mm;
             object-fit: cover;
             border-radius: 4px;
             background-color: {{ secondary }};
             padding: 4px;
+            display: block;
+            margin-bottom: 15px;
         }
         .main {
             width: 70%;
             padding: 20px;
+            box-sizing: border-box;
         }
-        h1, h2 {
-            margin-top: 0;
+        h1 {
+            margin: 0 0 10px;
+            font-size: 24px;
         }
-        section {
-            margin-bottom: 20px;
-        }
-        ul {
-            padding-left: 20px;
+        .contact-info p {
+            margin: 4px 0;
         }
         .section-title {
             border-bottom: 2px solid {{ color }};
-            margin-bottom: 10px;
+            margin: 20px 0 10px;
+            padding-bottom: 4px;
+            font-size: 18px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin: 5px 0 15px;
+        }
+        section p {
+            margin: 6px 0;
+            line-height: 1.2;
         }
     </style>
 </head>
@@ -50,77 +65,77 @@
         <img src="data:image/png;base64,{{ photo }}" alt="Profile Photo">
         {% endif %}
         <h1>{{ name }}</h1>
-        <p>{{ city }}, {{ country }}</p>
-        <p>{{ phone }}</p>
-        <p>{{ email }}</p>
-
-        <h2 class="section-title">Skills</h2>
-        <ul>
-            {% for skill in skills %}
-            <li>{{ skill }}</li>
-            {% endfor %}
-        </ul>
-
-        <h2 class="section-title">Languages</h2>
-        <ul>
-            {% for lang in languages %}
-            <li>{{ lang.language }} - {{ lang.level }}</li>
-            {% endfor %}
-        </ul>
-
+        <div class="contact-info">
+            <p>{{ city }}, {{ country }}</p>
+            <p>{{ phone }}</p>
+            <p>{{ email }}</p>
+        </div>
         {% if summary %}
-        <h2 class="section-title">Summary</h2>
-        <p>{{ summary }}</p>
+        <div>
+            <h2 class="section-title">Summary</h2>
+            <p>{{ summary }}</p>
+        </div>
         {% endif %}
+        <div>
+            <h2 class="section-title">Skills</h2>
+            <ul>
+                {% for skill in skills %}
+                <li>{{ skill }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <h2 class="section-title">Languages</h2>
+            <ul>
+                {% for lang in languages %}
+                <li>{{ lang.language }} - {{ lang.level }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <div class="main">
         <section>
             <h2 class="section-title">Education</h2>
             {% for edu in education %}
-            <p>
-                <strong>{{ edu.level }}</strong>: {{ edu.institution }}<br>
-                {{ edu.city }}, {{ edu.country }}<br>
-                {{ edu.title }}<br>
-                {{ edu.date }}
-            </p>
+            <p><strong>{{ edu.level }}</strong> — {{ edu.title }}<br>
+               {{ edu.institution }}, {{ edu.city }}, {{ edu.country }}<br>
+               {{ edu.date }}</p>
             {% endfor %}
         </section>
-
         <section>
             <h2 class="section-title">Experience</h2>
             {% for exp in experience %}
-            <p>
-                <strong>{{ exp.title }}</strong><br>
-                {{ exp.city }}, {{ exp.country }}<br>
-                ({{ exp.start }} - {{ exp.end }})<br>
-                {{ exp.desc }}
-            </p>
+            <p><strong>{{ exp.title }}</strong><br>
+               {{ exp.city }}, {{ exp.country }}<br>
+               ({{ exp.start }} — {{ exp.end }})<br>
+               {{ exp.desc }}</p>
             {% endfor %}
         </section>
-
         {% if internships %}
         <section>
             <h2 class="section-title">Internships</h2>
             {% for intern in internships %}
-            <p><strong>{{ intern.title }}</strong> - {{ intern.location }} ({{ intern.start }} - {{ intern.end }})</p>
+            <p><strong>{{ intern.title }}</strong><br>
+               {{ intern.location }}<br>
+               ({{ intern.start }} — {{ intern.end }})</p>
             {% endfor %}
         </section>
         {% endif %}
-
         {% if trainings %}
         <section>
             <h2 class="section-title">Trainings</h2>
             {% for train in trainings %}
-            <p><strong>{{ train.title }}</strong> - {{ train.location }} ({{ train.start }} - {{ train.end }})</p>
+            <p><strong>{{ train.title }}</strong><br>
+               {{ train.location }}<br>
+               ({{ train.start }} — {{ train.end }})</p>
             {% endfor %}
         </section>
         {% endif %}
-
         {% if certificates %}
         <section>
             <h2 class="section-title">Certificates</h2>
             {% for cert in certificates %}
-            <p><strong>{{ cert.title }}</strong> - {{ cert.date }}</p>
+            <p><strong>{{ cert.title }}</strong> — {{ cert.date }}</p>
             {% endfor %}
         </section>
         {% endif %}
