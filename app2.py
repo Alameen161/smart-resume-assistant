@@ -18,6 +18,13 @@ if not st.session_state["api_key"]:
     st.stop()
 
 client = openai.OpenAI(api_key=st.session_state["api_key"])
+# in your app2.py
+
+with st.sidebar:
+    st.markdown(
+        "[📄 Terms & Conditions](terms.html)", 
+        unsafe_allow_html=True
+    )
 
 # Upload profile photo
 photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg", "png"])
