@@ -18,6 +18,12 @@ if not st.session_state["api_key"]:
     st.stop()
 
 client = openai.OpenAI(api_key=st.session_state["api_key"])
+ 
+
+# Upload profile photo
+photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg", "png"])
+
+# Sidebar inputs
 # in your app2.py
 
 with st.sidebar:
@@ -35,12 +41,11 @@ with st.sidebar:
         '<a href="privacy_policy.html" target="_blank">📜 Privacy Policy</a>',
         unsafe_allow_html=True
     )
-    
-
-# Upload profile photo
-photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg", "png"])
-
-# Sidebar inputs
+st.markdown(
+    '<a href="support.html" target="_blank">🛠️ Support</a>',
+    unsafe_allow_html=True
+)
+   
 with st.sidebar:
     st.header("🧠 Skills & 🌐 Languages")
     skills = st.text_area("Enter each skill on a new line")
