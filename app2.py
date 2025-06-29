@@ -25,6 +25,17 @@ with st.sidebar:
         "[📄 Terms & Conditions](terms.html)", 
         unsafe_allow_html=True
     )
+# at the top of your app2.py, after imports
+import os
+
+# … inside your sidebar block, below the Terms link …
+with st.sidebar:
+    # existing sidebar widgets…
+    st.markdown(
+        '<a href="privacy_policy.html" target="_blank">📜 Privacy Policy</a>',
+        unsafe_allow_html=True
+    )
+    
 
 # Upload profile photo
 photo = st.file_uploader("Upload a profile photo (JPG/PNG)", type=["jpg", "jpeg", "png"])
